@@ -1,0 +1,9 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+fastapi==0.109.0
+addict==2.4.0
+uvicorn==0.26.0
+python-multipart==0.0.6
+torch
+torchvision
+opencv_contrib_python==4.9.0.80
+ImageHash==4.3.1
