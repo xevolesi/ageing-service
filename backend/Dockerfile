@@ -1,18 +1,13 @@
-FROM ubuntu:latest
+FROM python:3.9
 
 # Ubuntu stuff.
 RUN apt update && apt upgrade -y && \
     apt install -y software-properties-common libpng-dev libjpeg-dev libtiff-dev wget curl libgl1-mesa-glx && \
     TZ="Russia/Moscow" apt-get install -y tzdata
 
-# Install python.
-RUN add-apt-repository ppa:deadsnakes/ppa && apt install -y python3.9 python3.9-dev python3.9-distutils \
-    && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3.9 get-pip.py \
-    && python3.9 -m pip install --upgrade pip
-
 # App stuff.
 COPY backend/requirements.txt .
-RUN python3.9 -m pip install -r requirements.txt
+RUN python3.9 -m pip install --upgrade pip && python3.9 -m pip install -U -r requirements.txt
 RUN mkdir -p /usr/src/app
 COPY . /usr/src/app
 WORKDIR /usr/src/app
