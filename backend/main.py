@@ -19,8 +19,8 @@ app = FastAPI()
 __poorman_cache = defaultdict(dict)
 
 
-@app.post("/predict/{age}", response_model=GenerationDAO)
-def predict(age: str, file: UploadFile) -> GenerationDAO:
+@app.post("/predict/", response_model=GenerationDAO)
+def predict(ages: list[int], file: UploadFile) -> GenerationDAO:
     try:
         _, ext = file.filename.split(".")
     except ValueError:
@@ -28,15 +28,6 @@ def predict(age: str, file: UploadFile) -> GenerationDAO:
         raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail=message)
     if ext not in ACCEPTABLE_IMAGE_EXTENSIONS:
         message = f"Expected image extension to be one of {ACCEPTABLE_IMAGE_EXTENSIONS}, but got {ext}"
-        raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail=message)
-
-    try:
-        age_list = list(map(int, age.split(",")))
-    except ValueError:
-        message = (
-            f"Expected age to be integer value like `40` or comma-separated list of integer values like `40, 50, 60`, "
-            f"but got {age}"
-        )
         raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail=message)
 
     try:
@@ -53,12 +44,12 @@ def predict(age: str, file: UploadFile) -> GenerationDAO:
     generated_images_done = []
     image_hash = imagehash.average_hash(Image.fromarray(image))
     if image_hash in __poorman_cache:
-        for age in age_list:
+        for age in ages:
             if age in __poorman_cache[image_hash]:
                 age_list_done.append(age)
                 generated_images_done.append(__poorman_cache[image_hash][age])
 
-    age_list = [age for age in age_list if age not in age_list_done]
+    age_list = [age for age in ages if age not in age_list_done]
     if not age_list:
         return GenerationDAO(ages=age_list_done, images=generated_images_done)
 
