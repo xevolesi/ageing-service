@@ -63,10 +63,11 @@ def predict(age: str, file: UploadFile) -> GenerationDAO:
         return GenerationDAO(ages=age_list_done, images=generated_images_done)
 
     # Run generation only for thoose ages that are not in cache.
+    src_image_height, src_image_width = image.shape[:2]
     image_tensor = preprocess_image(image)
     processed_batch = run_on_image(model, add_aging_channel(image_tensor, age_list))
     images = [
-        encode_pytorch_image(image_tensor, "." + ext)
+        encode_pytorch_image(image_tensor, (src_image_width, src_image_height),  "." + ext)
         for image_tensor in processed_batch
     ]
 

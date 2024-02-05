@@ -40,12 +40,11 @@ def stylegan_tensor_to_image(stylegan_tensor: torch.FloatTensor) -> NDArray[np.u
 
 
 def encode_pytorch_image(
-    image_tensor: torch.FloatTensor, extension: str = ".jpg"
+    image_tensor: torch.FloatTensor, image_spatial_size: tuple[int, int], extension: str = ".jpg"
 ) -> bytes:
     image = stylegan_tensor_to_image(image_tensor)
-    return base64.b64encode(
-        cv2.imencode(extension, cv2.cvtColor(image, cv2.COLOR_RGB2BGR))[1]
-    )
+    image = cv2.resize(image, image_spatial_size, interpolation=cv2.INTER_AREA)
+    return base64.b64encode(cv2.imencode(extension, cv2.cvtColor(image, cv2.COLOR_RGB2BGR))[1])
 
 
 def decode_fastapi_file(fastapi_file: UploadFile) -> NDArray[np.uint8]:
