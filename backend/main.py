@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 import cv2
+import numpy as np
 import imagehash
 from PIL import Image
 from fastapi import FastAPI, UploadFile, HTTPException, status
@@ -13,9 +14,13 @@ from image import (
     ACCEPTABLE_IMAGE_EXTENSIONS,
 )
 from inference import model, add_aging_channel, run_on_image
+from models.face_detector import FaceDetector
+
+__FD_CHECKPOINT_PATH = "backend/weights/face_detector_optimized.onnx"
 
 
 app = FastAPI()
+face_detector = FaceDetector(__FD_CHECKPOINT_PATH)
 __poorman_cache = defaultdict(dict)
 
 
@@ -54,6 +59,8 @@ def predict(ages: list[int], file: UploadFile) -> GenerationDAO:
         return GenerationDAO(ages=age_list_done, images=generated_images_done)
 
     # Run generation only for thoose ages that are not in cache.
+    top_left_x, top_left_y, bot_right_x, bot_right_y = face_detector(image)[0] 
+    image = np.ascontiguousarray(image[top_left_y: bot_right_y, top_left_x: bot_right_x])
     src_image_height, src_image_width = image.shape[:2]
     image_tensor = preprocess_image(image)
     processed_batch = run_on_image(model, add_aging_channel(image_tensor, age_list))

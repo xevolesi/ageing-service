@@ -7,10 +7,11 @@ RUN apt update && apt upgrade -y && \
     apt install -y software-properties-common libpng-dev libjpeg-dev libtiff-dev wget curl libgl1-mesa-glx && \
     TZ="Russia/Moscow" apt-get install -y tzdata
 
-# Download SAM weights.
+# Download model weights.
 RUN python3.9 -m pip install gdown
 RUN mkdir --parents backend/weights
-RUN gdown https://drive.google.com/file/d/1XyumF6_fdAxFmxpFcmPf-q84LU_22EMC/view?usp=sharing --fuzzy -O backend/weights/model.pth
+RUN gdown https://drive.google.com/file/d/1XyumF6_fdAxFmxpFcmPf-q84LU_22EMC/view?usp=sharing --fuzzy -O backend/weights/model.pth && \
+    gdown https://drive.google.com/file/d/1UXhYNmd5oEmzq6C4wkrzz3S-s03eTaqD/view?usp=sharing --fuzzy -O backend/weights/face_detector_optimized.onnx
 
 # App stuff.
 COPY backend/requirements.txt .
